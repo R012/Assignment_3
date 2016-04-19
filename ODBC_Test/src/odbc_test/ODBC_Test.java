@@ -25,7 +25,7 @@ public class ODBC_Test {
         Class.forName(driver);
         System.out.println(DriverManager.getDrivers().nextElement().toString());
         Connection conn = DriverManager.getConnection(
-                "jdbc:postgresql://127.0.0.1:5432/movies", userName, password);
+                "jdbc:postgresql://127.0.0.1:5432/postgres", userName, password);
         return conn;
     }
     
@@ -58,25 +58,19 @@ public class ODBC_Test {
                 while(!conn.isClosed())
                 {
                     System.out.println("Insert statement: ");
-                    String statement = new Scanner(System.in).next();
+                    String statement = new Scanner(System.in).nextLine();
+                    System.out.println("Query: "+statement);
                     if(statement.toLowerCase().equals("exit"))
                         conn.close();
                     Statement st = conn.createStatement();
                     ResultSet rs = st.executeQuery(statement);
-                    if(rs.isBeforeFirst())
+                    ResultSetMetaData rsmd = rs.getMetaData();
+                    int count = rsmd.getColumnCount();
+                    while(rs.next())
                     {
-                        assert(rs.first());
-                        System.out.println("Relocating cursor...");
-                    }
-                    if(rs.isAfterLast())
-                    {
-                        assert(rs.first());
-                        System.out.println("Relocating cursor...");
-                    }
-                    while(!rs.isAfterLast())
-                    {
-                        System.out.println(rs.getString(1));
-                        rs.next();
+                        for(int i=1; i<=count; i++)
+                            System.out.print(rs.getObject(i).toString()+" | ");
+                        System.out.print("\n");
                     }
                 }
             }catch(java.sql.SQLException se)
